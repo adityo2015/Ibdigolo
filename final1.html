@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IndiGolo</title>
+<style>
+  /* Basic Reset & Styling */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #f0f4f8;
+    color: #333;
+  }
+  header {
+    background: #4b6cb7;
+    background: linear-gradient(45deg, #4b6cb7, #182848);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+  }
+  main {
+    max-width: 900px;
+    margin: 1rem auto;
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  }
+  h1, h2 {
+    margin-bottom: 1rem;
+  }
+  input, button, select, textarea {
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+  button {
+    background-color: #4b6cb7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #394a8a;
+  }
+  nav {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  nav button {
+    width: auto;
+    padding: 0.5rem 1rem;
+  }
+  .hidden {
+    display: none;
+  }
+  .task-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    gap: 1rem;
+  }
+  .task {
+    background: #e1eaff;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .task button {
+    margin-top: 0.5rem;
+    width: auto;
+  }
+  .balance {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  th {
+    background: #4b6cb7;
+    color: white;
+  }
+  .profile-info {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .logout-btn {
+    background: #d9534f;
+  }
+  @media(max-width:600px){
+    main {
+      padding: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>IndiGolo</h1>
+</header>
+
+<main>
+  <!-- CUSTOMER LOGIN FORM -->
+  <section id="login-section">
+    <h2>Customer Login</h2>
+    <form id="login-form">
+      <label for="username">Username:</label>
+      <input id="username" name="username" type="text" required autocomplete="off" />
+      <label for="password">Password:</label>
+      <input id="password" name="password" type="password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p>Or create a new account:</p>
+    <form id="signup-form">
+      <label for="new-username">Username:</label>
+      <input id="new-username" name="new-username" type="text" required autocomplete="off" />
+      <label for="new-password">Password:</label>
+      <input id="new-password" name="new-password" type="password" required />
+      <button type="submit">Sign Up</button>
+    </form>
+    <hr />
+    <p>Admin? <button id="show-admin-login-btn" style="width:auto; background:#555;">Go to Admin Login</button></p>
+  </section>
+
+  <!-- ADMIN LOGIN FORM -->
+  <section id="admin-login-section" class="hidden">
+    <h2>Admin Login</h2>
+    <form id="admin-login-form">
+      <label for="admin-username">Admin Username:</label>
+      <input id="admin-username" name="admin-username" type="text" required autocomplete="off" />
+      <label for="admin-password">Admin Password:</label>
+      <input id="admin-password" name="admin-password" type="password" required />
+      <button type="submit">Login as Admin</button>
+    </form>
+    <p><button id="back-to-customer-login" style="width:auto; background:#555; margin-top: 1rem;">Back to Customer Login</button></p>
+  </section>
+
+  <!-- CUSTOMER DASHBOARD -->
+  <section id="dashboard-section" class="hidden">
+    <nav>
+      <button id="tasks-tab">Tasks</button>
+      <button id="withdraw-tab">Withdraw</button>
+      <button id="history-tab">Withdraw History</button>
+      <button id="profile-tab">Profile</button>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </nav>
+
+    <div id="tasks-section" class="tab-content">
+      <h2>Today's Tasks</h2>
+      <p class="balance">Main Balance: $<span id="main-balance">0</span></p>
+      <div class="task-list" id="task-list"></div>
+    </div>
+
+    <div id="withdraw-section" class="tab-content hidden">
+      <h2>Withdraw Funds</h2>
+      <p class="balance">Available Balance: $<span id="available-balance">0</span></p>
+      <form id="withdraw-form">
+        <label for="withdraw-amount">Amount to withdraw:</label>
+        <input id="withdraw-amount" type="number" min="20" step="20" required />
+        <button type="submit">Withdraw</button>
+      </form>
+    </div>
+
+    <div id="history-section" class="tab-content hidden">
+      <h2>Withdraw History</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>TnxID</th>
+            <th>Amount</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <!-- Withdrawals here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="profile-section" class="tab-content hidden">
+      <h2>Profile</h2>
+      <div class="profile-info">
+        <p><strong>Username:</strong> <span id="profile-username"></span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN DASHBOARD -->
+  <section id="admin-dashboard-section" class="hidden">
+    <nav>
+      <button id="admin-users-tab">Users</button>
+      <button id="admin-logout-btn" class="logout-btn">Logout Admin</button>
+    </nav>
+    <div id="admin-users-section" class="tab-content">
+      <h2>All Customers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Balance</th>
+            <th>Tasks Completed</th>
+            <th>Total Tasks</th>
+            <th>Withdrawal Count</th>
+          </tr>
+        </thead>
+        <tbody id="admin-users-tbody">
+          <!-- User rows here -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Helper: generate TnxID
+  function generateTnxID() {
+    return 'Tnx-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  }
+
+  const STORAGE_KEY = "IndiGoloUsers";
+
+  let currentUser = null;
+  let currentAdmin = null;
+
+  // Get users from storage or create empty object
+  function getUsers() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  }
+
+  // Generate initial 20 tasks
+  function generateTasks() {
+    let tasks = [];
+    for(let i=1; i<=20; i++) {
+      tasks.push({ id: i, completed: false });
+    }
+    return tasks;
+  }
+
+  // DOM elements
+  const loginSection = document.getElementById('login-section');
+  const adminLoginSection = document.getElementById('admin-login-section');
+  const dashboardSection = document.getElementById('dashboard-section');
+  const adminDashboardSection = document.getElementById('admin-dashboard-section');
+
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const mainBalanceEl = document.getElementById('main-balance');
+  const availableBalanceEl = document.getElementById('available-balance');
+  const taskListEl = document.getElementById('task-list');
+  const withdrawForm = document.getElementById('withdraw-form');
+  const historyTbody = document.getElementById('history-tbody');
+  const profileUsernameEl = document.getElementById('profile-username');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  const adminLoginForm = document.getElementById('admin-login-form');
+  const adminUsersTbody = document.getElementById('admin-users-tbody');
+  const adminLogoutBtn = document.getElementById('admin-logout-btn');
+
+  // Navigation buttons and tab content for customer
+  const tabs = {
+    'tasks-tab': document.getElementById('tasks-section'),
+    'withdraw-tab': document.getElementById('withdraw-section'),
+    'history-tab': document.getElementById('history-section'),
+    'profile-tab': document.getElementById('profile-section'),
+  };
+  Object.keys(tabs).forEach(tabId => {
+    document.getElementById(tabId).addEventListener('click', () => {
+      Object.values(tabs).forEach(section => section.classList.add('hidden'));
+      tabs[tabId].classList.remove('hidden');
+    });
+  });
+
+  // Admin tabs - for now only one tab
+  const adminTabs = {
+    'admin-users-tab': document.getElementById('admin-users-section'),
+  };
+  Object.keys(adminTabs).forEach(tabId => {
+    document.getElementById(tabId).addEventListener('click', () => {
+      Object.values(adminTabs).forEach(section => section.classList.add('hidden'));
+      adminTabs[tabId].classList.remove('hidden');
+    });
+  });
+
+  // Show/hide sections helper
+  function showSection(section) {
+    [loginSection, adminLoginSection, dashboardSection, adminDashboardSection].forEach(s => s.classList.add('hidden'));
+    section.classList.remove('hidden');
+  }
+
+  // Save current user data
+  function saveCurrentUserData(userData) {
+    let users = getUsers();
+    users[currentUser] = userData;
+    saveUsers(users);
+  }
+
+  function loadCurrentUserData() {
+    let users = getUsers();
+    return users[currentUser];
+  }
+
+  // Customer dashboard functions
+  function renderTasks() {
+    const userData = loadCurrentUserData();
+    mainBalanceEl.textContent = userData.balance.toFixed(2);
+    taskListEl.innerHTML = '';
+
+    userData.tasks.forEach(task => {
+      const div = document.createElement('div');
+      div.classList.add('task');
+      div.innerHTML = `
+        <div>Task #${task.id}</div>
+        <button ${task.completed ? 'disabled' : ''}>${task.completed ? 'Completed' : 'Complete Task'}</button>
+      `;
+      const btn = div.querySelector('button');
+      btn.addEventListener('click', () => {
+        completeTask(task.id);
+      });
+      taskListEl.appendChild(div);
+    });
+  }
+
+  function completeTask(taskId) {
+    let userData = loadCurrentUserData();
+    const task = userData.tasks.find(t => t.id === taskId);
+    if (task && !task.completed) {
+      task.completed = true;
+      userData.balance += 20;
+      if (userData.tasks.every(t => t.completed)) {
+        const lastId = userData.tasks[userData.tasks.length -1].id;
+        for(let i=1; i<=20; i++) {
+          userData.tasks.push({ id: lastId + i, completed: false });
+        }
+      }
+      saveCurrentUserData(userData);
+      renderTasks();
+      //alert('Task completed! $20 added to your balance.');
+    }
+  }
+
+  function renderWithdraw() {
+    const userData = loadCurrentUserData();
+    availableBalanceEl.textContent = userData.balance.toFixed(2);
+    document.getElementById('withdraw-amount').value = '';
+  }
+
+  function renderWithdrawHistory() {
+    const userData = loadCurrentUserData();
+    historyTbody.innerHTML = '';
+    if (!userData.withdrawals || userData.withdrawals.length === 0) {
+      historyTbody.innerHTML = '<tr><td colspan="3">No withdrawal history.</td></tr>';
+      return;
+    }
+    userData.withdrawals.forEach(w => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${w.tnxID}</td>
+        <td>$${w.amount.toFixed(2)}</td>
+        <td>${w.datetime}</td>
+      `;
+      historyTbody.appendChild(tr);
+    });
+  }
+
+  function renderProfile() {
+    profileUsernameEl.textContent = currentUser;
+  }
+
+  function showCustomerDashboard() {
+    showSection(dashboardSection);
+    // Default tab
+    Object.values(tabs).forEach(s => s.classList.add('hidden'));
+    tabs['tasks-tab'].classList.remove('hidden');
+    renderTasks();
+    renderWithdraw();
+    renderWithdrawHistory();
+    renderProfile();
+  }
+
+  // Admin functions
+  function renderAdminUsers() {
+    const users = getUsers();
+    adminUsersTbody.innerHTML = '';
+    if (Object.keys(users).length === 0) {
+      adminUsersTbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
+      return;
+    }
+    Object.entries(users).forEach(([username, data]) => {
+      const completedTasks = data.tasks.filter(t => t.completed).length;
+      const totalTasks = data.tasks.length;
+      const withdrawalCount = data.withdrawals ? data.withdrawals.length : 0;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${username}</td>
+        <td>${data.password}</td>
+        <td>$${data.balance.toFixed(2)}</td>
+        <td>${completedTasks}</td>
+        <td>${totalTasks}</td>
+        <td>${withdrawalCount}</td>
+      `;
+      adminUsersTbody.appendChild(tr);
+    });
+  }
+
+  function showAdminDashboard() {
+    showSection(adminDashboardSection);
+    Object.values(adminTabs).forEach(s => s.classList.add('hidden'));
+    adminTabs['admin-users-tab'].classList.remove('hidden');
+    renderAdminUsers();
+  }
+
+  // Logout functions
+  logoutBtn.addEventListener('click', () => {
+    currentUser = null;
+    sessionStorage.removeItem('IndiGoloCurrentUser');
+    showSection(loginSection);
+    loginForm.reset();
+    signupForm.reset();
+  });
+
+  adminLogoutBtn.addEventListener('click', () => {
+    currentAdmin = null;
+    sessionStorage.removeItem('IndiGoloCurrentAdmin');
+    showSection(loginSection);
+    adminLoginForm.reset();
+  });
+
+  // Login handlers
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = loginForm.username.value.trim();
+    const password = loginForm.password.value;
+
+    const users = getUsers();
+    if (users[username] && users[username].password === password) {
+      currentUser = username;
+      sessionStorage.setItem('IndiGoloCurrentUser', currentUser);
+      showCustomerDashboard();
+    } else {
+      alert('Invalid username or password.');
+    }
+  });
+
+  signupForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = signupForm['new-username'].value.trim();
+    const password = signupForm['new-password'].value;
+
+    let users = getUsers();
+    if (users[username]) {
+      alert('Username already exists.');
+      return;
+    }
+
+    users[username] = {
+      password,
+      balance: 0,
+      tasks: generateTasks(),
+      withdrawals: []
+    };
+    saveUsers(users);
+    alert('Account created! You can now log in.');
+    signupForm.reset();
+  });
+
+  withdrawForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('withdraw-amount').value);
+    if (!amount || amount <= 0 || amount % 20 !== 0) {
+      alert('Please enter a valid amount in multiples of $20.');
+      return;
+    }
+
+    let userData = loadCurrentUserData();
+    if (amount > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+
+    userData.balance -= amount;
+    const now = new Date();
+    userData.withdrawals.push({
+      tnxID: generateTnxID(),
+      amount,
+      datetime: now.toLocaleString()
+    });
+    saveCurrentUserData(userData);
+    alert(`Withdrawal of $${amount.toFixed(2)} successful!`);
+    renderWithdraw();
+    renderWithdrawHistory();
+    renderTasks();
+  });
+
+  // Admin login
+  // For demo, admin credentials are hardcoded
+  const ADMIN_USERNAME = "admin";
+  const ADMIN_PASSWORD = "admin123";
+
+  adminLoginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = adminLoginForm['admin-username'].value.trim();
+    const password = adminLoginForm['admin-password'].value;
+
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      currentAdmin = username;
+      sessionStorage.setItem('IndiGoloCurrentAdmin', currentAdmin);
+      showAdminDashboard();
+    } else {
+      alert('Invalid admin credentials.');
+    }
+  });
+
+  // Switch to admin login
+  document.getElementById('show-admin-login-btn').addEventListener('click', () => {
+    showSection(adminLoginSection);
+  });
+
+  // Back to customer login
+  document.getElementById('back-to-customer-login').addEventListener('click', () => {
+    showSection(loginSection);
+  });
+
+  // Load saved session
+  window.addEventListener('load', () => {
+    const storedUser = sessionStorage.getItem('IndiGoloCurrentUser');
+    const storedAdmin = sessionStorage.getItem('IndiGoloCurrentAdmin');
+    if (storedUser) {
+      const users = getUsers();
+      if (users[storedUser]) {
+        currentUser = storedUser;
+        showCustomerDashboard();
+        return;
+      }
+    }
+    if (storedAdmin) {
+      currentAdmin = storedAdmin;
+      showAdminDashboard();
+      return;
+    }
+    showSection(loginSection);
+  });
+</script>
+
+</body>
+</html>
